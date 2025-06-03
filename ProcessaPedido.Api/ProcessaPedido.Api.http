@@ -1,0 +1,7 @@
+@ProcessaPedido.Api_HostAddress = http://localhost:5272
+
+GET {{ProcessaPedido.Api_HostAddress}}/entregas
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsInJvbGUiOiJBZG1pbiIsImV4cCI6MTcxNzQzMTYwMH0.2Qn6QwQw6QwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQw
+
+###

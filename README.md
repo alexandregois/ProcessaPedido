@@ -50,6 +50,13 @@ A API estará disponível em http://localhost:5272 (ou porta configurada).<br><b
 O projeto utiliza SQLite localmente, criando o arquivo entregas.db automaticamente na primeira execução.
 Não é necessário instalar nada extra para o banco.
 O uso do SQLite facilita o setup e permite rodar a aplicação e os testes sem dependências externas de banco.<br><br>
+Se o banco não existir inicialmente:<br>
+Intalar o EF Core Cli globalmente.<br>
+dotnet tool install --global dotnet-ef<br><br>
+Depois execute o comando para o Migration e geração das tabelas.<br>
+dotnet ef database update --project ProcessaPedido.Infrastructure --startup-project ProcessaPedido.Api<br><br>
+
+
 5. Acessando o Swagger<br><br>
 Acesse http://localhost:5272/swagger para explorar e testar os endpoints da API.<br><br>
 

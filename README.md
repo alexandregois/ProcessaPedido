@@ -10,7 +10,7 @@ Principais Funcionalidades:<br>
 - Banco de dados SQLite para facilitar o setup local e testes.<br>
 - Swagger para documentação e testes dos endpoints.<br>
 - Testes de integração cobrindo o fluxo completo.<br>
-- Arquitetura em camadas: Api, Application, Domain, Infrastructure, Tests.<br><br>
+- Arquitetura em camadas: Api, Application, Domain, Infrastructure, Tests - Visando uma maior separação das responsabilidades e para facilitar manutenções futuras.<br><br>
 
 Arquitetura:<br>
 - ProcessaPedido.Api: Camada de apresentação (controllers, autenticação, DI, Swagger).<br>
@@ -21,7 +21,7 @@ Arquitetura:<br>
 
 Tecnologias Utilizadas:<br>
 - .NET 8<br>
-- MassTransit (mensageria)<br>
+- MassTransit (mensageria) - framework open source .NET que encapsula várias funções, facilitando o desenvolvedor ao usar filas.<br>
 - RabbitMQ (fila de mensagens)<br>
 - Entity Framework Core (ORM)<br>
 - SQLite (banco de dados local)<br>
@@ -30,12 +30,12 @@ Tecnologias Utilizadas:<br>
 - Docker Desktop (para RabbitMQ)<br><br>
 
 Como Rodar o Projeto:<br>
-1. Pré-requisitos
-.NET 8 SDK
-Docker Desktop para Windows
+1. Pré-requisitos:<br>
+.NET 8 SDK<br>
+Docker Desktop para Windows<br>
 Git (opcional, para clonar o repositório)<br><br>
 2. Subindo o RabbitMQ com Docker<br>
-O projeto já inclui um arquivo docker-compose.yml para facilitar o setup do RabbitMQ.<br><br>
+O projeto já inclui um arquivo docker-compose.yml, na raiz da solução, para facilitar o setup do RabbitMQ.<br><br>
 No terminal, execute:<br>
 docker-compose up -d<br><br>
 Isso irá:
@@ -88,6 +88,6 @@ Volume nomeado para manter dados mesmo após reiniciar o container.<br>
 <br><br>
 Observações e Dicas:<br>
 O projeto está pronto para rodar tanto com fila em memória (para testes rápidos) quanto com RabbitMQ real (produção/integrado).<br><br>
-Para alternar entre os modos, basta ajustar a configuração no Program.cs.<br><br>
+Para alternar entre os modos, basta ajustar a configuração no Program.cs. - código comentado.<br><br>
 O SQLite foi escolhido para facilitar o desenvolvimento e testes locais, sem necessidade de instalar um SGBD.<br><br>
 O painel do RabbitMQ pode ser acessado em `http://localhost:15672` para monitorar filas, mensagens e consumidores.

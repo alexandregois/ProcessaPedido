@@ -2,7 +2,7 @@
 
 Descrição do Projeto:<br><br>
 O ProcessaPedido é uma API RESTful para gerenciamento de entregas/logística. <br><br>
-O projeto segue boas práticas de arquitetura, processamento assíncrono, integração com fila (RabbitMQ), persistência em banco de dados (SQLite/EF Core) e testes robustos.<br><br>
+O projeto busca seguir as boas práticas de arquitetura, processamento assíncrono, integração com fila (RabbitMQ), persistência em banco de dados (SQLite/EF Core) e testes.<br><br>
 
 Principais Funcionalidades:<br>
 - API RESTful para criação e consulta de entregas.<br>

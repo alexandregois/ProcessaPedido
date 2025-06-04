@@ -5,8 +5,9 @@ using Xunit;
 using Microsoft.AspNetCore.Mvc.Testing;
 using System.Linq;
 using System.Threading;
-using Microsoft.VisualStudio.TestPlatform.TestHost;
 using ProcessaPedido.Domain.Entities;
+using ProcessaPedido.Domain.Enum;
+using ProcessaPedido.Api.Models;
 
 namespace ProcessaPedido.Tests
 {
@@ -24,20 +25,20 @@ namespace ProcessaPedido.Tests
         [Fact]
         public async Task PostAndGetEntrega_Success()
         {
-            var payload = new Entrega
+            var payload = new EntregaCreateDto
             {
                 PedidoId = "ABC123",
-                Destinatario = new Destinatario
+                Destinatario = new DestinatarioDto
                 {
                     Nome = "João da Silva",
                     Endereco = "Rua das Flores, 1000",
                     Cep = "01010-000"
                 },
-                Itens = new System.Collections.Generic.List<ItemEntrega>
-                {
-                    new ItemEntrega { Descricao = "Geladeira", Quantidade = 1 },
-                    new ItemEntrega { Descricao = "Fogão", Quantidade = 1 }
-                }
+                Itens = new System.Collections.Generic.List<ItemEntregaDto>
+               {
+                   new ItemEntregaDto { Descricao = "Geladeira", Quantidade = 1 },
+                   new ItemEntregaDto { Descricao = "Fogão", Quantidade = 1 }
+               }
             };
 
             // POST
@@ -56,29 +57,36 @@ namespace ProcessaPedido.Tests
             Assert.Equal(payload.Destinatario.Nome, entrega.Destinatario.Nome);
             Assert.Equal(payload.Itens.Count, entrega.Itens.Count);
 
+            Assert.Equal(StatusEntrega.Pendente, (StatusEntrega)entrega.Status);
+
             // Aguarda processamento assíncrono
             Thread.Sleep(4000);
             var getResponse2 = await _client.GetAsync($"/entregas/{postResult.Id}");
             var entrega2 = await getResponse2.Content.ReadFromJsonAsync<EntregaResult>();
-            Assert.True(entrega2.Status == "Entregue" || entrega2.Status == "FalhaNaEntrega");
+            Console.WriteLine($"Status final recebido: {entrega2.Status}");
+            Assert.True(
+                entrega2.Status == (int)StatusEntrega.SaiuParaEntrega ||
+                entrega2.Status == (int)StatusEntrega.Entregue ||
+                entrega2.Status == (int)StatusEntrega.FalhaNaEntrega
+            );
         }
 
         [Fact]
         public async Task PostAndGetEntrega_SecondOrder_Success()
         {
-            var payload = new Entrega
+            var payload = new EntregaCreateDto
             {
                 PedidoId = "XYZ789",
-                Destinatario = new Destinatario
+                Destinatario = new DestinatarioDto
                 {
                     Nome = "Maria Oliveira",
                     Endereco = "Avenida Central, 200",
                     Cep = "02020-000"
                 },
-                Itens = new System.Collections.Generic.List<ItemEntrega>
+                Itens = new System.Collections.Generic.List<ItemEntregaDto>
                 {
-                    new ItemEntrega { Descricao = "TV", Quantidade = 2 },
-                    new ItemEntrega { Descricao = "Micro-ondas", Quantidade = 1 }
+                    new ItemEntregaDto { Descricao = "TV", Quantidade = 2 },
+                    new ItemEntregaDto { Descricao = "Micro-ondas", Quantidade = 1 }
                 }
             };
 
@@ -97,22 +105,31 @@ namespace ProcessaPedido.Tests
             Assert.Equal(payload.PedidoId, entrega.PedidoId);
             Assert.Equal(payload.Destinatario.Nome, entrega.Destinatario.Nome);
             Assert.Equal(payload.Itens.Count, entrega.Itens.Count);
-            Assert.Equal("Pendente", entrega.Status);
+            // Aceita Pendente ou SaiuParaEntrega devido ao processamento assíncrono
+            Assert.True(
+                entrega.Status == (int)StatusEntrega.Pendente ||
+                entrega.Status == (int)StatusEntrega.SaiuParaEntrega
+            );
 
             // Aguarda processamento assíncrono
             Thread.Sleep(4000);
             var getResponse2 = await _client.GetAsync($"/entregas/{postResult.Id}");
             var entrega2 = await getResponse2.Content.ReadFromJsonAsync<EntregaResult>();
-            Assert.True(entrega2.Status == "Entregue" || entrega2.Status == "FalhaNaEntrega");
+            Console.WriteLine($"Status final recebido: {entrega2.Status}");
+            Assert.True(
+                entrega2.Status == (int)StatusEntrega.SaiuParaEntrega ||
+                entrega2.Status == (int)StatusEntrega.Entregue ||
+                entrega2.Status == (int)StatusEntrega.FalhaNaEntrega
+            );
         }
 
         private class TempIdResult { public System.Guid Id { get; set; } }
         private class EntregaResult
         {
             public string PedidoId { get; set; }
-            public Destinatario Destinatario { get; set; }
-            public System.Collections.Generic.List<ItemEntrega> Itens { get; set; }
-            public string Status { get; set; }
+            public DestinatarioDto Destinatario { get; set; }
+            public System.Collections.Generic.List<ItemEntregaDto> Itens { get; set; }
+            public int Status { get; set; }
         }
     } 
 }

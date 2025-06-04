@@ -8,6 +8,8 @@ using System;
 using Microsoft.AspNetCore.Authorization;
 using ProcessaPedido.Api.Models;
 using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
+using System.Linq;
 
 namespace ProcessaPedido.Api.Controllers
 {

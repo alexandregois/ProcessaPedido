@@ -38,7 +38,7 @@ Git (opcional, para clonar o repositório)<br><br>
 O projeto já inclui um arquivo docker-compose.yml, na raiz da solução, para facilitar o setup do RabbitMQ.<br><br>
 No terminal, execute:<br>
 docker-compose up -d<br><br>
-Isso irá:
+Isso irá:<br>
 Baixar a imagem oficial do RabbitMQ com painel de administração.
 Subir o serviço na porta padrão (5672) e painel web em `http://localhost:15672` (usuário/senha: guest/guest).<br><br>
 3. Rodando a API<br>
@@ -63,7 +63,7 @@ Acesse http://localhost:5272/swagger para explorar e testar os endpoints da API.
 Testes:<br><br>
 Para rodar os testes de integração:<br>
 dotnet test<br><br>
-Os testes cobrem o fluxo completo de criação e processamento de entregas, incluindo o uso da fila (RabbitMQ real ou in-memory, conforme configuração).<br><br>
+Os testes cobrem o fluxo completo de criação e processamento de entregas, incluindo o uso da fila (RabbitMQ real ou in-memory, conforme configuração - código comentado).<br><br>
 
 Sobre o docker-compose.yml<br><br>
 O arquivo docker-compose.yml está na raiz do projeto e define o serviço do RabbitMQ:<br><br>

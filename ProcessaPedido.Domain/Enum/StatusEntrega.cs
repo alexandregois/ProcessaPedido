@@ -8,9 +8,9 @@ namespace ProcessaPedido.Domain.Enum
 {
     public enum StatusEntrega
     {
-        Pendente,
-        SaiuParaEntrega,
-        Entregue,
-        FalhaNaEntrega
+        Pendente = 0,
+        SaiuParaEntrega = 1,
+        Entregue = 2,
+        FalhaNaEntrega = 3
     }
 }

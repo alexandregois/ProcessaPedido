@@ -21,7 +21,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-// Add the missing using directive for WebApplication  
 
 builder.Services.AddSwaggerGen();
 
@@ -85,7 +84,7 @@ builder.Services.AddMassTransit(x =>
     x.AddConsumer<EntregaConsumer>();
     x.UsingRabbitMq((ctx, cfg) =>
     {
-        // Usa a connection string do RabbitMQ de uma variável de ambiente ou padrão localhost
+        // Usa a connection string do RabbitMQ de uma variável de ambiente ou padrão localhost (para implementação futura).
         var rabbitMqHost = Environment.GetEnvironmentVariable("RABBITMQ_CONNECTION") ?? "localhost";
         cfg.Host(rabbitMqHost, "/", h => {
             h.Username("guest");

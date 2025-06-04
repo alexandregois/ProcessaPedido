@@ -27,6 +27,26 @@ namespace ProcessaPedido.Api.Controllers
             _bus = bus;
         }
 
+        /// <summary>
+        /// Cria uma nova entrega.
+        /// </summary>
+        /// <remarks>
+        /// Exemplo de payload:
+        ///
+        ///     {
+        ///       "pedidoId": "ABC123",
+        ///       "destinatario": {
+        ///         "nome": "João da Silva",
+        ///         "endereco": "Rua das Flores, 1000",
+        ///         "cep": "01010-000"
+        ///       },
+        ///       "itens": [
+        ///         { "descricao": "Geladeira", "quantidade": 1 },
+        ///         { "descricao": "Fogão", "quantidade": 1 }
+        ///       ]
+        ///     }
+        ///
+        /// </remarks>
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] EntregaCreateDto dto)
         {

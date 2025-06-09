@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using System;
 using SQLitePCL;
 using MassTransit.RabbitMqTransport;
+using Microsoft.OpenApi.Models;
 
 SQLitePCL.Batteries_V2.Init();
 
@@ -22,13 +23,41 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "ProcessaPedido API", Version = "v1" });
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "Apenas cole o token JWT gerado pelo login (Auth).",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT"
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+});
 
 builder.Services.AddDbContext<AppDbContext>(opt =>
     opt.UseSqlite("Data Source=entregas.db"));
 
-// Gera o token JWT fixo a partir do payload fornecido
-var fixedJwtToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsInJvbGUiOiJBZG1pbiIsImV4cCI6MTcxNzQzMTYwMH0.2Qn6QwQw6QwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQw"; // Substitua por seu token real
+var jwtConfig = builder.Configuration.GetSection("Jwt");
+var key = jwtConfig["Key"];
+var issuer = jwtConfig["Issuer"];
+var audience = jwtConfig["Audience"];
 
 builder.Services.AddAuthentication(options =>
 {
@@ -37,34 +66,15 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
-    options.Events = new JwtBearerEvents
-    {
-        OnMessageReceived = context =>
-        {
-            var token = context.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            Console.WriteLine($"Token recebido: {token}");
-            context.Token = token; // Aceita qualquer token para teste
-            return Task.CompletedTask;
-        },
-        OnTokenValidated = context =>
-        {
-            Console.WriteLine("Token validado com sucesso!");
-            return Task.CompletedTask;
-        },
-        OnAuthenticationFailed = context =>
-        {
-            Console.WriteLine($"Falha na autenticação: {context.Exception.Message}");
-            return Task.CompletedTask;
-        }
-    };
     options.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidateIssuer = false,
-        ValidateAudience = false,
-        ValidateIssuerSigningKey = false,
-        ValidateLifetime = false,
-        //SignatureValidator = (token, parameters) => new JwtSecurityToken(token) O .NET 8 espera que o SignatureValidator retorne um JsonWebToken, não um JwtSecurityToken.
-        SignatureValidator = (token, parameters) => new Microsoft.IdentityModel.JsonWebTokens.JsonWebToken(token)
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateIssuerSigningKey = true,
+        ValidateLifetime = true,
+        ValidIssuer = issuer,
+        ValidAudience = audience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
     };
 });
 

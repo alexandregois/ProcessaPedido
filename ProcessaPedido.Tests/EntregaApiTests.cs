@@ -124,6 +124,7 @@ namespace ProcessaPedido.Tests
         }
 
         private class TempIdResult { public System.Guid Id { get; set; } }
+
         private class EntregaResult
         {
             public string PedidoId { get; set; }

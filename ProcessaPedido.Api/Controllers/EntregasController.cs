@@ -75,10 +75,20 @@ namespace ProcessaPedido.Api.Controllers
             return Accepted(new { entrega.Id });
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(Guid id)
+        [HttpGet]
+        public async Task<IActionResult> Get([FromQuery] Guid? id, [FromQuery] string pedidoId)
         {
-            var entrega = await _db.Entregas.Include(e => e.Itens).FirstOrDefaultAsync(e => e.Id == id);
+            if (id == null && string.IsNullOrEmpty(pedidoId))
+                return BadRequest("É necessário informar Id ou PedidoId.");
+
+            var query = _db.Entregas.Include(e => e.Itens).AsQueryable();
+
+            if (id != null)
+                query = query.Where(e => e.Id == id);
+            if (!string.IsNullOrEmpty(pedidoId))
+                query = query.Where(e => e.PedidoId == pedidoId);
+
+            var entrega = await query.FirstOrDefaultAsync();
             if (entrega == null) return NotFound();
             return Ok(entrega);
         }

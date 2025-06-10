@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35931.197 d17.13
+VisualStudioVersion = 17.13.35931.197
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProcessaPedido.Api", "ProcessaPedido.Api\ProcessaPedido.Api.csproj", "{4F5E5CDE-D50B-456E-8D79-25727B70A957}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProcessaPedido.Infrastructure", "ProcessaPedido.Infrastructure\ProcessaPedido.Infrastructure.csproj", "{BEDAC504-E9F6-4422-BB19-3D0656E9803A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProcessaPedido.Tests", "ProcessaPedido.Tests\ProcessaPedido.Tests.csproj", "{A48366E5-421C-4B91-B420-22149D8D3E15}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProcessaPedido.Consumption", "ProcessaPedido.Consumption\ProcessaPedido.Consumption.csproj", "{F82B9A8D-02DA-4A44-989C-97114BD8A315}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{A48366E5-421C-4B91-B420-22149D8D3E15}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A48366E5-421C-4B91-B420-22149D8D3E15}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A48366E5-421C-4B91-B420-22149D8D3E15}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F82B9A8D-02DA-4A44-989C-97114BD8A315}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F82B9A8D-02DA-4A44-989C-97114BD8A315}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F82B9A8D-02DA-4A44-989C-97114BD8A315}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F82B9A8D-02DA-4A44-989C-97114BD8A315}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

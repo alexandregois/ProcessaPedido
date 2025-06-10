@@ -55,7 +55,7 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
     opt.UseSqlite("Data Source=entregas.db"));
 
 var jwtConfig = builder.Configuration.GetSection("Jwt");
-var key = jwtConfig["Key"];
+var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key não configurada"));
 var issuer = jwtConfig["Issuer"];
 var audience = jwtConfig["Audience"];
 
@@ -74,7 +74,7 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true,
         ValidIssuer = issuer,
         ValidAudience = audience,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
+        IssuerSigningKey = new SymmetricSecurityKey(key)
     };
 });
 

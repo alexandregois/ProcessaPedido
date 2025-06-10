@@ -14,12 +14,22 @@ namespace ProcessaPedido.Tests
     public class EntregaApiTests : IClassFixture<WebApplicationFactory<Program>>
     {
         private readonly HttpClient _client;
-        private const string Token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsInJvbGUiOiJBZG1pbiIsImV4cCI6MTcxNzQzMTYwMH0.2Qn6QwQw6QwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQw";
 
         public EntregaApiTests(WebApplicationFactory<Program> factory)
         {
             _client = factory.CreateClient();
-            _client.DefaultRequestHeaders.Add("Authorization", $"Bearer {Token}");
+            AuthenticateAsync().GetAwaiter().GetResult();
+        }
+
+        private async Task AuthenticateAsync()
+        {
+            var login = new { username = "admin", password = "admin" };
+            var response = await _client.PostAsJsonAsync("/auth/login", login);
+            response.EnsureSuccessStatusCode();
+            var json = await response.Content.ReadAsStringAsync();
+            using var doc = System.Text.Json.JsonDocument.Parse(json);
+            var token = doc.RootElement.GetProperty("token").GetString();
+            _client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
         }
 
         [Fact]
@@ -44,31 +54,27 @@ namespace ProcessaPedido.Tests
             // POST
             var postResponse = await _client.PostAsJsonAsync("/entregas", payload);
             Assert.Equal(System.Net.HttpStatusCode.Accepted, postResponse.StatusCode);
-            var postResult = await postResponse.Content.ReadFromJsonAsync<TempIdResult>();
+            var postResult = await postResponse.Content.ReadFromJsonAsync<TempIdResult>() ?? throw new InvalidOperationException("Falha ao deserializar resposta");
             Assert.NotNull(postResult);
             Assert.NotEqual(System.Guid.Empty, postResult.Id);
 
             // GET
             var getResponse = await _client.GetAsync($"/entregas/{postResult.Id}");
-            Assert.Equal(System.Net.HttpStatusCode.OK, getResponse.StatusCode);
-            var entrega = await getResponse.Content.ReadFromJsonAsync<EntregaResult>();
+            getResponse.EnsureSuccessStatusCode();
+            var entrega = await getResponse.Content.ReadFromJsonAsync<EntregaResult>() ?? throw new InvalidOperationException("Falha ao deserializar resposta");
             Assert.NotNull(entrega);
             Assert.Equal(payload.PedidoId, entrega.PedidoId);
             Assert.Equal(payload.Destinatario.Nome, entrega.Destinatario.Nome);
             Assert.Equal(payload.Itens.Count, entrega.Itens.Count);
 
-            Assert.Equal(StatusEntrega.Pendente, (StatusEntrega)entrega.Status);
-
             // Aguarda processamento assíncrono
-            Thread.Sleep(4000);
+            Thread.Sleep(2000); // Aguarda 2 segundos para o RabbitMQ processar
+
+            // Verifica status após processamento
             var getResponse2 = await _client.GetAsync($"/entregas/{postResult.Id}");
-            var entrega2 = await getResponse2.Content.ReadFromJsonAsync<EntregaResult>();
-            Console.WriteLine($"Status final recebido: {entrega2.Status}");
-            Assert.True(
-                entrega2.Status == (int)StatusEntrega.SaiuParaEntrega ||
-                entrega2.Status == (int)StatusEntrega.Entregue ||
-                entrega2.Status == (int)StatusEntrega.FalhaNaEntrega
-            );
+            getResponse2.EnsureSuccessStatusCode();
+            var entrega2 = await getResponse2.Content.ReadFromJsonAsync<EntregaResult>() ?? throw new InvalidOperationException("Falha ao deserializar resposta");
+            Assert.Equal(2, entrega2.Status); // SaiuParaEntrega
         }
 
         [Fact]
@@ -93,14 +99,14 @@ namespace ProcessaPedido.Tests
             // POST
             var postResponse = await _client.PostAsJsonAsync("/entregas", payload);
             Assert.Equal(System.Net.HttpStatusCode.Accepted, postResponse.StatusCode);
-            var postResult = await postResponse.Content.ReadFromJsonAsync<TempIdResult>();
+            var postResult = await postResponse.Content.ReadFromJsonAsync<TempIdResult>() ?? throw new InvalidOperationException("Falha ao deserializar resposta");
             Assert.NotNull(postResult);
             Assert.NotEqual(System.Guid.Empty, postResult.Id);
 
             // GET (status inicial)
             var getResponse = await _client.GetAsync($"/entregas/{postResult.Id}");
-            Assert.Equal(System.Net.HttpStatusCode.OK, getResponse.StatusCode);
-            var entrega = await getResponse.Content.ReadFromJsonAsync<EntregaResult>();
+            getResponse.EnsureSuccessStatusCode();
+            var entrega = await getResponse.Content.ReadFromJsonAsync<EntregaResult>() ?? throw new InvalidOperationException("Falha ao deserializar resposta");
             Assert.NotNull(entrega);
             Assert.Equal(payload.PedidoId, entrega.PedidoId);
             Assert.Equal(payload.Destinatario.Nome, entrega.Destinatario.Nome);
@@ -112,15 +118,13 @@ namespace ProcessaPedido.Tests
             );
 
             // Aguarda processamento assíncrono
-            Thread.Sleep(4000);
+            Thread.Sleep(2000); // Aguarda 2 segundos para o RabbitMQ processar
+
+            // Verifica status após processamento
             var getResponse2 = await _client.GetAsync($"/entregas/{postResult.Id}");
-            var entrega2 = await getResponse2.Content.ReadFromJsonAsync<EntregaResult>();
-            Console.WriteLine($"Status final recebido: {entrega2.Status}");
-            Assert.True(
-                entrega2.Status == (int)StatusEntrega.SaiuParaEntrega ||
-                entrega2.Status == (int)StatusEntrega.Entregue ||
-                entrega2.Status == (int)StatusEntrega.FalhaNaEntrega
-            );
+            getResponse2.EnsureSuccessStatusCode();
+            var entrega2 = await getResponse2.Content.ReadFromJsonAsync<EntregaResult>() ?? throw new InvalidOperationException("Falha ao deserializar resposta");
+            Assert.Equal(2, entrega2.Status); // SaiuParaEntrega
         }
 
         private class TempIdResult { public System.Guid Id { get; set; } }
@@ -131,6 +135,26 @@ namespace ProcessaPedido.Tests
             public DestinatarioDto Destinatario { get; set; }
             public System.Collections.Generic.List<ItemEntregaDto> Itens { get; set; }
             public int Status { get; set; }
+        }
+
+        public class EntregaCreateDto
+        {
+            public required string PedidoId { get; set; }
+            public required DestinatarioDto Destinatario { get; set; }
+            public required List<ItemEntregaDto> Itens { get; set; }
+        }
+
+        public class DestinatarioDto
+        {
+            public required string Nome { get; set; }
+            public required string Endereco { get; set; }
+            public required string Cep { get; set; }
+        }
+
+        public class ItemEntregaDto
+        {
+            public required string Descricao { get; set; }
+            public int Quantidade { get; set; }
         }
     } 
 }

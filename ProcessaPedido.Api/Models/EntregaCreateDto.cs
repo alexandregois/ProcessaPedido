@@ -6,28 +6,28 @@ namespace ProcessaPedido.Api.Models
     public class EntregaCreateDto
     {
         [Required]
-        public string PedidoId { get; set; }
+        public required string PedidoId { get; set; }
         [Required]
-        public DestinatarioDto Destinatario { get; set; }
+        public required DestinatarioDto Destinatario { get; set; }
         [Required]
         [MinLength(1)]
-        public List<ItemEntregaDto> Itens { get; set; }
+        public required List<ItemEntregaDto> Itens { get; set; }
     }
 
     public class DestinatarioDto
     {
         [Required]
-        public string Nome { get; set; }
+        public required string Nome { get; set; }
         [Required]
-        public string Endereco { get; set; }
+        public required string Endereco { get; set; }
         [Required]
-        public string Cep { get; set; }
+        public required string Cep { get; set; }
     }
 
     public class ItemEntregaDto
     {
         [Required]
-        public string Descricao { get; set; }
+        public required string Descricao { get; set; }
         [Range(1, int.MaxValue)]
         public int Quantidade { get; set; }
     }

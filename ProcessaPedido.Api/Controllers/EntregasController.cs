@@ -75,22 +75,36 @@ namespace ProcessaPedido.Api.Controllers
             return Accepted(new { entrega.Id });
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Get([FromQuery] Guid? id, [FromQuery] string pedidoId)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(Guid id)
         {
-            if (id == null && string.IsNullOrEmpty(pedidoId))
-                return BadRequest("É necessário informar Id ou PedidoId.");
-
-            var query = _db.Entregas.Include(e => e.Itens).AsQueryable();
-
-            if (id != null)
-                query = query.Where(e => e.Id == id);
-            if (!string.IsNullOrEmpty(pedidoId))
-                query = query.Where(e => e.PedidoId == pedidoId);
-
-            var entrega = await query.FirstOrDefaultAsync();
+            var entrega = await _db.Entregas
+                .Include(e => e.Itens)
+                .FirstOrDefaultAsync(e => e.Id == id);
+            
             if (entrega == null) return NotFound();
             return Ok(entrega);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetByPedidoId([FromQuery] string pedidoId)
+        {
+            if (string.IsNullOrEmpty(pedidoId))
+                return BadRequest("É necessário informar PedidoId.");
+
+            var entrega = await _db.Entregas
+                .Include(e => e.Itens)
+                .FirstOrDefaultAsync(e => e.PedidoId == pedidoId);
+            
+            if (entrega == null) return NotFound();
+            return Ok(entrega);
+        }
+
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAll()
+        {
+            var entregas = await _db.Entregas.Include(e => e.Itens).ToListAsync();
+            return Ok(entregas);
         }
     }
 }

@@ -97,4 +97,39 @@ Observações e Dicas:<br>
 O projeto está pronto para rodar tanto com fila em memória (para testes rápidos) quanto com RabbitMQ real (produção/integrado).<br><br>
 Para alternar entre os modos, basta ajustar a configuração no Program.cs. - código comentado.<br><br>
 O SQLite foi escolhido para facilitar o desenvolvimento e testes locais, sem necessidade de instalar um SGBD.<br><br>
-O painel do RabbitMQ pode ser acessado em `http://localhost:15672` para monitorar filas, mensagens e consumidores.
+O painel do RabbitMQ pode ser acessado em `http://localhost:15672` para monitorar filas, mensagens e consumidores.<br><br><br>
+
+
+09/06/2025 - 21:00<br><br>
+Criado projeto ProcessaPedido.Consumption - responsável por consumir a Api ProcessaPedido.Api<br>
+A cada 30 segundos, faz um POST em /entregas com um objeto aleatório e executa o /entregas/all, retornando todos os pedidos existentes na base sqlite.<br>
+
+![image](https://github.com/user-attachments/assets/9b786d23-afb5-482b-9629-05d658b4d69d)<be><br><br>
+
+O Swagger agora apresenta o endpoint /Auth/login, onde username = "admin" e password = "admin", obtem-se o Token para utilizar no Authorize.<br>
+
+![image](https://github.com/user-attachments/assets/42fbc4ae-7fde-4c80-b16b-f6d9c3381165)<br>
+
+Authorize:<br>
+
+![image](https://github.com/user-attachments/assets/74f03e0a-7011-40ae-8e96-3a907573bdb6)<br>
+
+Após validar o Token no Authorize, todos os endpoints poderão ser usados, sem gerar erro de Authorization.<br>
+
+![image](https://github.com/user-attachments/assets/b00cd5a7-2eb5-48f8-8664-37dd45910a7a)<br>
+
+![image](https://github.com/user-attachments/assets/7c109682-7dcf-434f-8622-1d7531f2421a)<br><br><br>
+
+Na Api o endpoint Get /Entregas foi dividido também com opção de execução passando Id ou PedidoId.<br>
+
+![image](https://github.com/user-attachments/assets/395489e4-11f6-4a18-a707-3ace172fabf4)<br><br><br>
+
+
+* Após o ajuste do ProcessaPedido.Api e a inclusão do ProcessaPedido.Consumption, temos agora 2 formas de testar a Api com visualização dos dados.
+<br>1 - Direto pelo Swagger.
+<br>2 - Executando o ProcessaPedido.Consumption e acompanhando o retorno dos dados no Console.
+
+
+
+
+

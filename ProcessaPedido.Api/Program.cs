@@ -28,7 +28,7 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "ProcessaPedido API", Version = "v1" });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Description = "Apenas cole o token JWT gerado pelo login (Auth).",
+        Description = "Insira o Token JWT gerado pelo login (Auth).",
         Name = "Authorization",
         In = ParameterLocation.Header,
         Type = SecuritySchemeType.Http,
@@ -78,27 +78,20 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// Configuração do MassTransit usando fila em memória (ideal para testes e desenvolvimento local)
-//builder.Services.AddMassTransit(x =>
-//{
-//    x.AddConsumer<EntregaConsumer>();
-//    x.UsingInMemory((ctx, cfg) =>
-//    {
-//        cfg.ConfigureEndpoints(ctx);
-//    });
-//});
-
-// Configuração do MassTransit usando RabbitMQ real (ideal para produção ou integração real)
+// Configuração do MassTransit usando RabbitMQ
 builder.Services.AddMassTransit(x =>
 {
     x.AddConsumer<EntregaConsumer>();
     x.UsingRabbitMq((ctx, cfg) =>
     {
-        // Usa a connection string do RabbitMQ de uma variável de ambiente ou padrão localhost (para implementação futura).
-        var rabbitMqHost = Environment.GetEnvironmentVariable("RABBITMQ_CONNECTION") ?? "localhost";
-        cfg.Host(rabbitMqHost, "/", h => {
-            h.Username("guest");
-            h.Password("guest");
+        var rabbitMqConfig = builder.Configuration.GetSection("RabbitMQ");
+        var host = rabbitMqConfig["Host"] ?? "localhost";
+        var username = rabbitMqConfig["Username"] ?? "guest";
+        var password = rabbitMqConfig["Password"] ?? "guest";
+
+        cfg.Host(host, "/", h => {
+            h.Username(username);
+            h.Password(password);
         });
         cfg.ConfigureEndpoints(ctx);
     });
